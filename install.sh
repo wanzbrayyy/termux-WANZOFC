@@ -140,10 +140,14 @@ redd_loading_animation() {
     termux-media-player play "$HOME/.termux/audio/hacker.mp3" &
 
     if ! command -v toilet &> /dev/null; then
-        pkg install -y toilet
+        pkg install -y toilet &> /dev/null
     fi
+    if ! command -v lolcat &> /dev/null; then
+        gem install lolcat &> /dev/null
+    fi
+
     clear
-    toilet -f standard -F metal "RedDarkID"
+    figlet -f slant "RedDarkID" | lolcat
     echo -e "\033[0;32m      Owned by WANZOFC\033[0m"
     echo ""
     echo -e "\033[1;33mLoading...\033[0m"
@@ -158,15 +162,18 @@ redd_loading_animation() {
     sleep 1
 
     # Stop music by killing the process
-    pkill termux-media-player
+    pkill termux-media-player &> /dev/null
 
     clear
+
+    # Redefine the function to do nothing after the first run
+    redd_loading_animation() {
+        return 0
+    }
 }
 
-# Load animation only on new shell session
-if [ "$TERMUX_VERSION" ]; then
-    redd_loading_animation
-fi
+# Run the animation function once
+redd_loading_animation
 
 plugins=(
   git
