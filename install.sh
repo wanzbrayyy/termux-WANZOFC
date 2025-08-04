@@ -74,7 +74,7 @@ install_theme() {
     echo -e "${YELLOW}Langkah 2: Mengunduh file suara...${NC}"
     MUSIC_DIR="$HOME/.termux/audio"
     mkdir -p "$MUSIC_DIR"
-    wget -q -O "$MUSIC_DIR/hacker.mp3" https://www.myinstants.com/media/sounds/matrix-music.mp3
+    wget -q -O "$MUSIC_DIR/hacker.mp3" https://files.catbox.moe/w2i31u.mp3
     echo -e "${GREEN}File suara berhasil diunduh.${NC}"
     sleep 1
 
@@ -212,6 +212,10 @@ EOF
     # --- 8. Set Zsh as default shell ---
     echo -e "${YELLOW}Langkah 8: Menjadikan Zsh sebagai shell default...${NC}"
     chsh -s zsh
+
+    # --- 9. Suppress Termux MOTD ---
+    echo -e "${YELLOW}Langkah 9: Menonaktifkan pesan selamat datang Termux...${NC}"
+    touch "$HOME/.hushlogin"
 
     echo -e "${GREEN}INSTALASI SELESAI!${NC}"
     echo -e "${YELLOW}Keluar dari skrip. Silakan mulai ulang Termux Anda untuk melihat perubahan.${NC}"
