@@ -54,8 +54,8 @@ install_theme() {
     # --- 1. Install Dependencies ---
     echo -e "${YELLOW}Langkah 1: Menginstal paket yang diperlukan...${NC}"
     pkg update -y && pkg upgrade -y
-    # Install core packages, including ruby for lolcat
-    pkg install -y zsh git wget curl ruby termux-api
+    # Install core packages, including ruby for lolcat and procps for pkill
+    pkg install -y zsh git wget curl ruby termux-api procps
 
     # Install lolcat using gem
     echo "Menginstal lolcat..."
@@ -157,8 +157,8 @@ redd_loading_animation() {
     echo ""
     sleep 1
 
-    # Stop music
-    termux-media-player stop
+    # Stop music by killing the process
+    pkill termux-media-player
 
     clear
 }
