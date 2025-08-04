@@ -54,12 +54,32 @@ install_theme() {
     # --- 1. Install Dependencies ---
     echo -e "${YELLOW}Langkah 1: Menginstal paket yang diperlukan...${NC}"
     pkg update -y && pkg upgrade -y
-    pkg install -y zsh git wget curl lolcat ruby termux-api
-    echo -e "${GREEN}Paket berhasil diinstal.${NC}"
+    # Install core packages, including ruby for lolcat
+    pkg install -y zsh git wget curl ruby termux-api
+
+    # Install lolcat using gem
+    echo "Menginstal lolcat..."
+    gem install lolcat
+
+    echo -e "${GREEN}Paket inti berhasil diinstal.${NC}"
     sleep 1
 
-    # --- 2. Backup existing config files ---
-    echo -e "${YELLOW}Langkah 2: Mencadangkan file konfigurasi yang ada...${NC}"
+    # --- 1b. Verify Zsh installation ---
+    if ! command -v zsh &> /dev/null; then
+        echo -e "${RED}Instalasi Zsh tidak dapat diverifikasi. Silakan coba jalankan skrip ini lagi.${NC}"
+        exit 1
+    fi
+
+    # --- 2. Download Sound Files ---
+    echo -e "${YELLOW}Langkah 2: Mengunduh file suara...${NC}"
+    MUSIC_DIR="$HOME/.termux/audio"
+    mkdir -p "$MUSIC_DIR"
+    wget -q -O "$MUSIC_DIR/hacker.mp3" https://www.myinstants.com/media/sounds/matrix-music.mp3
+    echo -e "${GREEN}File suara berhasil diunduh.${NC}"
+    sleep 1
+
+    # --- 3. Backup existing config files ---
+    echo -e "${YELLOW}Langkah 3: Mencadangkan file konfigurasi yang ada...${NC}"
     TIMESTAMP=$(date +%Y%m%d_%H%M%S)
     if [ -f "$HOME/.bashrc" ]; then
         mv "$HOME/.bashrc" "$HOME/.bashrc.bak.$TIMESTAMP"
@@ -71,8 +91,8 @@ install_theme() {
     fi
     sleep 1
 
-    # --- 3. Install Oh My Zsh ---
-    echo -e "${YELLOW}Langkah 3: Menginstal Oh My Zsh...${NC}"
+    # --- 4. Install Oh My Zsh ---
+    echo -e "${YELLOW}Langkah 4: Menginstal Oh My Zsh...${NC}"
     if [ -d "$HOME/.oh-my-zsh" ]; then
         echo "Oh My Zsh sudah terinstal. Melewati..."
     else
@@ -85,8 +105,8 @@ install_theme() {
     echo -e "${GREEN}Oh My Zsh berhasil diinstal.${NC}"
     sleep 1
 
-    # --- 4. Install Powerlevel10k Theme ---
-    echo -e "${YELLOW}Langkah 4: Menginstal tema Powerlevel10k...${NC}"
+    # --- 5. Install Powerlevel10k Theme ---
+    echo -e "${YELLOW}Langkah 5: Menginstal tema Powerlevel10k...${NC}"
     if [ -d "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k" ]; then
         echo "Powerlevel10k sudah terinstal. Melewati..."
     else
@@ -95,15 +115,15 @@ install_theme() {
     echo -e "${GREEN}Tema Powerlevel10k berhasil diinstal.${NC}"
     sleep 1
 
-    # --- 5. Install Zsh Plugins ---
-    echo -e "${YELLOW}Langkah 5: Menginstal plugin Zsh (autosuggestions & syntax-highlighting)...${NC}"
+    # --- 6. Install Zsh Plugins ---
+    echo -e "${YELLOW}Langkah 6: Menginstal plugin Zsh (autosuggestions & syntax-highlighting)...${NC}"
     git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
     git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
     echo -e "${GREEN}Plugin berhasil diinstal.${NC}"
     sleep 1
 
-    # --- 6. Configure .zshrc ---
-    echo -e "${YELLOW}Langkah 6: Mengkonfigurasi file .zshrc...${NC}"
+    # --- 7. Configure .zshrc ---
+    echo -e "${YELLOW}Langkah 7: Mengkonfigurasi file .zshrc...${NC}"
 
     cat << 'EOF' > "$HOME/.zshrc"
 # Enable Powerlevel10k instant prompt. Should stay at the top of .zshrc.
@@ -116,6 +136,9 @@ ZSH_THEME="powerlevel10k/powerlevel10k"
 
 # --- RedDarkID Loading Animation ---
 redd_loading_animation() {
+    # Play music in background
+    termux-media-player play "$HOME/.termux/audio/hacker.mp3" &
+
     if ! command -v toilet &> /dev/null; then
         pkg install -y toilet
     fi
@@ -133,6 +156,10 @@ redd_loading_animation() {
     done
     echo ""
     sleep 1
+
+    # Stop music
+    termux-media-player stop
+
     clear
 }
 
@@ -175,13 +202,14 @@ EOF
     echo -e "${GREEN}File .zshrc dan .p10k.zsh berhasil dibuat.${NC}"
     sleep 1
 
-    # --- 7. Set Zsh as default shell ---
-    echo -e "${YELLOW}Langkah 7: Menjadikan Zsh sebagai shell default...${NC}"
+    # --- 8. Set Zsh as default shell ---
+    echo -e "${YELLOW}Langkah 8: Menjadikan Zsh sebagai shell default...${NC}"
     chsh -s zsh
 
-    echo -e "${GREEN}${BOLD}INSTALASI SELESAI!${NC}"
-    echo -e "Silakan mulai ulang Termux untuk menerapkan perubahan."
-    read -p "Tekan [Enter] untuk kembali ke menu utama..."
+    echo -e "${GREEN}INSTALASI SELESAI!${NC}"
+    echo -e "${YELLOW}Keluar dari skrip. Silakan mulai ulang Termux Anda untuk melihat perubahan.${NC}"
+    sleep 3
+    exit 0
 }
 
 uninstall_theme() {
